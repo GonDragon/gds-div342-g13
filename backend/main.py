@@ -6,12 +6,14 @@ from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+# Variable de entorno solicitada
+ENTORNO = os.getenv("ENTORNO", "Entorno no configurado")
+
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "mysql+pymysql://user:password@db:3306/appdb",
 )
 
-# Reintentos por si MySQL tarda en arrancar
 engine = None
 for _ in range(10):
   try:
@@ -46,6 +48,12 @@ app.add_middleware(
 
 class TaskCreate(BaseModel):
   title: str
+
+
+# Nuevo endpoint para consultar el entorno
+@app.get("/api/entorno")
+def get_entorno():
+  return {"entorno": ENTORNO}
 
 
 @app.get("/api/tasks")

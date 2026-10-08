@@ -31,8 +31,8 @@ services:
     build: ./backend
     container_name: fastapi_backend
     restart: always
-    environment:
-      DATABASE_URL: mysql+pymysql://user:password@db:3306/appdb
+    env_file:
+      - .env.example # Carga las variables directamente desde el archivo de entorno
     ports:
       - "8000:8000"
     networks:

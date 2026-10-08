@@ -5,6 +5,7 @@
     <title>Exposicion para GDS Div #342-2</title>
 </head>
 <body>
+    <h3 id="envBadge">Entorno: Cargando...</h3>
     <h1>Lista de Tareas</h1>
     <input type="text" id="taskInput" placeholder="Nueva tarea...">
     <button onclick="addTask()">Agregar</button>
@@ -12,6 +13,17 @@
 
     <script>
         const API_URL = '/api/tasks';
+        const ENV_URL = '/api/entorno';
+
+        async function fetchEntorno() {
+            try {
+                const res = await fetch(ENV_URL);
+                const data = await res.json();
+                document.getElementById('envBadge').textContent = `Entorno: ${data.entorno}`;
+            } catch (err) {
+                document.getElementById('envBadge').textContent = 'Entorno: Desconectado';
+            }
+        }
 
         async function fetchTasks() {
             const res = await fetch(API_URL);
@@ -37,6 +49,8 @@
             fetchTasks();
         }
 
+        // Carga inicial
+        fetchEntorno();
         fetchTasks();
     </script>
 </body>
