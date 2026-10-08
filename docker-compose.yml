@@ -1,53 +1,94 @@
+# Versión de la especificación de Docker Compose
 version: '3.8'
 
+# -----------------------------------------------------------------------------
+# REDES CUSTOMIZADAS
+# Red bridge personalizada para la comunicación por nombre de servicio.
+# -----------------------------------------------------------------------------
 networks:
   app-network:
     driver: bridge
 
+# -----------------------------------------------------------------------------
+# VOLÚMENES PERSISTENTES
+# Persistencia de datos para la base de datos MySQL.
+# -----------------------------------------------------------------------------
 volumes:
   db_data:
 
+# -----------------------------------------------------------------------------
+# SERVICIOS / CONTENEDORES
+# -----------------------------------------------------------------------------
 services:
+
+  # ---------------------------------------------------------------------------
+  # 1. CONTENEDOR DE BASE DE DATOS (MySQL)
+  # ---------------------------------------------------------------------------
   db:
     image: mysql:8.0
     container_name: mysql_db
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: appdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+
+    # Carga automática de las variables ENTORNO
+    env_file:
+      - .env.example
+
+    # Mapeo del volumen para persistir los datos de MySQL
     volumes:
       - db_data:/var/lib/mysql
+
+    # Conexión a la red bridge personalizada
     networks:
       - app-network
+
+    # Healthcheck leyendo la variable cargada desde el env_file
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  # ---------------------------------------------------------------------------
+  # 2. CONTENEDOR DE BACKEND (FastAPI)
+  # ---------------------------------------------------------------------------
   backend:
     build: ./backend
     container_name: fastapi_backend
     restart: always
+
+    # Carga automática de las variables ENTORNO
     env_file:
-      - .env.example # Carga las variables directamente desde el archivo de entorno
+      - .env.example
+
+    # Exposición de puertos hacia el host
     ports:
       - "8000:8000"
+
+    # Conexión a la red bridge personalizada
     networks:
       - app-network
+
+    # Dependencia vinculada al Healthcheck de la Base de Datos
     depends_on:
       db:
         condition: service_healthy
 
+  # ---------------------------------------------------------------------------
+  # 3. CONTENEDOR DE FRONTEND (JavaScript / Nginx)
+  # ---------------------------------------------------------------------------
   frontend:
     build: ./frontend
     container_name: nginx_frontend
     restart: always
+
+    # Exposición de puertos hacia el host
     ports:
       - "8080:80"
+    
+    # Conexión a la red bridge personalizada
     networks:
       - app-network
+
+    # Garantiza que el backend se inicie antes que el servidor web del frontend
     depends_on:
       - backend
