@@ -8,12 +8,12 @@
     <h3 id="envBadge">Entorno: Cargando...</h3>
     <h1>Lista de Usuarios</h1>
     <p>¡Bienvenido a la gestion de usuarios!</p>
-    <input type="text" id="taskInput" placeholder="Nueva tarea...">
-    <button onclick="addTask()">Agregar Usuarios</button>
-    <ul id="taskList"></ul>
+    <input type="text" id="userInput" placeholder="Nueva tarea...">
+    <button onclick="addUser()">Agregar Usuarios</button>
+    <ul id="UserList"></ul>
 
     <script>
-        const API_URL = '/api/tasks';
+        const API_URL = '/api/usuarios';
         const ENV_URL = '/api/entorno';
 
         async function fetchEntorno() {
@@ -26,33 +26,33 @@
             }
         }
 
-        async function fetchTasks() {
+        async function fetchUsers() {
             const res = await fetch(API_URL);
-            const tasks = await res.json();
-            const list = document.getElementById('taskList');
+            const users = await res.json();
+            const list = document.getElementById('UserList');
             list.innerHTML = '';
-            tasks.forEach(t => {
+            users.forEach(t => {
                 const li = document.createElement('li');
-                li.textContent = t.title;
+                li.textContent = t.nombre;
                 list.appendChild(li);
             });
         }
 
-        async function addTask() {
-            const input = document.getElementById('taskInput');
+        async function addUser() {
+            const input = document.getElementById('userInput');
             if (!input.value) return;
             await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: input.value })
+                body: JSON.stringify({ nombre: input.value })
             });
             input.value = '';
-            fetchTasks();
+            fetchUsers();
         }
 
         // Carga inicial
         fetchEntorno();
-        fetchTasks();
+        fetchUsers();
     </script>
 </body>
 </html>

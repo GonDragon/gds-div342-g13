@@ -26,10 +26,10 @@ for _ in range(10):
 Base = declarative_base()
 
 
-class Task(Base):
-  __tablename__ = "tasks"
+class User(Base):
+  __tablename__ = "usuarios"
   id = Column(Integer, primary_key=True, index=True)
-  title = Column(String(255), nullable=False)
+  nombre = Column(String(255), nullable=False)
 
 
 if engine:
@@ -46,8 +46,8 @@ app.add_middleware(
 )
 
 
-class TaskCreate(BaseModel):
-  title: str
+class UserCreate(BaseModel):
+  nombre: str
 
 
 # Nuevo endpoint para consultar el entorno
@@ -56,20 +56,20 @@ def get_entorno():
   return {"entorno": ENTORNO}
 
 
-@app.get("/api/tasks")
-def get_tasks():
+@app.get("/api/usuarios")
+def get_users():
   db = SessionLocal()
-  tasks = db.query(Task).all()
+  users = db.query(User).all()
   db.close()
-  return tasks
+  return users
 
 
-@app.post("/api/tasks")
-def create_task(task: TaskCreate):
+@app.post("/api/usuarios")
+def create_user(user: UserCreate):
   db = SessionLocal()
-  db_task = Task(title=task.title)
-  db.add(db_task)
+  db_user = User(nombre=user.nombre)
+  db.add(db_user)
   db.commit()
-  db.refresh(db_task)
+  db.refresh(db_user)
   db.close()
-  return db_task
+  return db_user
