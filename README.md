@@ -9,7 +9,7 @@
 ## Estructura de Carpetas
 A continuación se detalla la estructura del proyecto utilizada para organizar los contenedores, configuraciones y variables de entorno:
 
-
+```text
 gds-div342-g13/
 ├── backend/
 │   ├── Dockerfile          # Configuración de la imagen para FastAPI
